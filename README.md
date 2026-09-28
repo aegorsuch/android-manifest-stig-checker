@@ -2,6 +2,17 @@
 
 Paste your AndroidManifest.xml and get informed of real DISA Android STIG issues.
 
+## Project Information
+
+### Rights
+Unlimited Rights granted to TAK Product Center.
+
+### Point of Contact
+Alex Gorsuch on chat.tak.gov or Signal.
+
+### Repositories
+The TAK Forge repository is canonical; GitHub is a secondary repository.
+
 ## Usage
 1. Start the app with `npm start` to launch the local server (default port 3000).
 2. Paste your AndroidManifest.xml in the input box.
