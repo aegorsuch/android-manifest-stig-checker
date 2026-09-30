@@ -30,9 +30,9 @@ The TAK Forge repository is canonical; GitHub is a secondary repository.
 
 To deploy as a GitHub Pages site:
 1. Build the static site with `npm run build`.
-2. Push the contents of the `docs` folder to the `main` branch.
-3. In your GitHub repo settings, set GitHub Pages source to `main` branch, `/docs` folder.
-4. Add a `.nojekyll` file to the `docs` folder (already included).
+2. Commit the generated files in the `docs` folder.
+3. In your GitHub repo settings, set GitHub Pages source to the `main` branch, `/docs` folder.
+4. Ensure a `.nojekyll` file exists in the `docs` folder.
 
 Your app will be available at: https://aegorsuch.github.io/android-manifest-stig-checker/
 ## Recommended VS Code Extensions

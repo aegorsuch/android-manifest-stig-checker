@@ -2,13 +2,14 @@
     "name": "android-manifest-stig-checker",
     "version": "1.0.0",
     "private": true,
+    "type": "module",
     "dependencies": {
         "react": "^18.3.1",
         "react-dom": "^18.3.1"
     },
     "scripts": {
-        "start": "npx serve public",
-        "build": "npx babel src --out-dir public --presets=@babel/preset-react,@babel/preset-env",
+        "start": "npx vite",
+        "build": "npx vite build",
         "test": "node --test src/stig-checker.test.cjs"
     },
     "devDependencies": {

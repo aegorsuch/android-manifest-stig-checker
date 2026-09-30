@@ -1,9 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { checkSTIG, getComplianceSummary } = require('./stig-checker.js');
-
-test('detects common STIG issues from real XML structure', () => {
+test('detects common STIG issues from real XML structure', async () => {
+  const { checkSTIG } = await import('./stig-checker.js');
   const manifest = `
     <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.test">
       <application
@@ -27,7 +26,8 @@ test('detects common STIG issues from real XML structure', () => {
   assert.ok(issues.some((issue) => issue.id === 'V-242857'));
 });
 
-test('summarizes severity counts for compliance reporting', () => {
+test('summarizes severity counts for compliance reporting', async () => {
+  const { getComplianceSummary } = await import('./stig-checker.js');
   const issues = [
     { id: 'V-242851', category: 'CAT I' },
     { id: 'V-242852', category: 'CAT II' },

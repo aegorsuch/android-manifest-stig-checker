@@ -127,7 +127,7 @@ const RULES = [
   },
 ];
 
-function normalizeBoolean(value) {
+export function normalizeBoolean(value) {
   if (value === undefined || value === null) {
     return false;
   }
@@ -135,7 +135,7 @@ function normalizeBoolean(value) {
   return String(value).trim().toLowerCase() === 'true';
 }
 
-function parseXmlAttributes(attrString) {
+export function parseXmlAttributes(attrString) {
   const attributes = {};
   const regex = /([A-Za-z0-9:_-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g;
   let match;
@@ -149,7 +149,7 @@ function parseXmlAttributes(attrString) {
   return attributes;
 }
 
-function listTags(xml, tagNames) {
+export function listTags(xml, tagNames) {
   const tags = [...xml.matchAll(/<([A-Za-z0-9:_-]+)(\s[^>]*)?>/g)];
 
   return tags
@@ -160,7 +160,7 @@ function listTags(xml, tagNames) {
     }));
 }
 
-function collectPermissions(xml) {
+export function collectPermissions(xml) {
   const matches = [...xml.matchAll(/<uses-permission\b[^>]*(?:android:name|name)\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi)];
   return matches
     .map((match) => match[1] || match[2] || match[3])
@@ -168,7 +168,7 @@ function collectPermissions(xml) {
     .map((value) => value.trim());
 }
 
-function collectManifestData(xml) {
+export function collectManifestData(xml) {
   const normalizedXml = xml || '';
   const applicationTags = listTags(normalizedXml, ['application']);
   const exportedTags = listTags(normalizedXml, ['activity', 'service', 'receiver', 'provider']);
@@ -178,7 +178,7 @@ function collectManifestData(xml) {
   return { application, exportedTags, permissions };
 }
 
-function getComplianceSummary(issues) {
+export function getComplianceSummary(issues) {
   const total = Array.isArray(issues) ? issues.length : 0;
   const catI = issues.filter((issue) => issue.category === 'CAT I').length;
   const catII = issues.filter((issue) => issue.category === 'CAT II').length;
@@ -193,7 +193,7 @@ function getComplianceSummary(issues) {
   };
 }
 
-function checkSTIG(manifest) {
+export function checkSTIG(manifest) {
   if (!manifest || typeof manifest !== 'string') {
     return [];
   }
@@ -226,8 +226,3 @@ function checkSTIG(manifest) {
 
   return issues;
 }
-
-module.exports = {
-  checkSTIG,
-  getComplianceSummary,
-};
