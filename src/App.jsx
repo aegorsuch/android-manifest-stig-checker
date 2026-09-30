@@ -80,6 +80,9 @@ export default function App() {
         <span role="img" aria-label="Shield" style={{ fontSize: 32 }}>🛡️</span>
         Android Manifest STIG Checker
       </h1>
+      <p style={{ fontSize: 14, opacity: 0.85, marginTop: -12, marginBottom: 20 }}>
+        Release (source commit): <code>{__SOURCE_COMMIT__}</code>
+      </p>
 
       <div style={{ marginBottom: 16 }}>
         <input
@@ -260,9 +263,6 @@ export default function App() {
           </div>
         )}
       </div>
-      <footer style={{ marginTop: 24, fontSize: 12, opacity: 0.8, textAlign: 'right' }}>
-        Release (source commit): <code>{__SOURCE_COMMIT__}</code>
-      </footer>
     </div>
   );
 }
