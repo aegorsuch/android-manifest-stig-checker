@@ -8,7 +8,8 @@
     },
     "scripts": {
         "start": "npx serve public",
-        "build": "npx babel src --out-dir public --presets=@babel/preset-react,@babel/preset-env"
+        "build": "npx babel src --out-dir public --presets=@babel/preset-react,@babel/preset-env",
+        "test": "node --test src/stig-checker.test.cjs"
     },
     "devDependencies": {
         "@babel/preset-env": "^7.29.0",
