@@ -260,6 +260,9 @@ export default function App() {
           </div>
         )}
       </div>
+      <footer style={{ marginTop: 24, fontSize: 12, opacity: 0.8, textAlign: 'right' }}>
+        Release (source commit): <code>{__SOURCE_COMMIT__}</code>
+      </footer>
     </div>
   );
 }
