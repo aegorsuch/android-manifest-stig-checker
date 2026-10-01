@@ -19,12 +19,17 @@ The TAK Forge repository is canonical; GitHub is a secondary repository.
 3. Click "Check STIG" to see issues.
 4. Optionally, load sample manifests for quick testing.
 
+The checker does not treat an empty or malformed manifest as compliant. Permission findings such as camera, location, and internet access are reported for human review because their acceptability depends on the application's mission and authorization.
+
 ## Features
 - Manifest input
 - Real DISA Android STIG checks (permissions, debuggable, backup, cleartext traffic, exported components, and more)
 - Issue reporting
 - Dark mode UI
 - Sample manifest loader
+- XML validation with explicit empty and malformed-input states
+- Separate objective failures from permissions requiring human review
+- Evidence and status included in CSV exports
 
 ## Deployment
 
@@ -48,6 +53,7 @@ Your app will be available at: https://aegorsuch.github.io/android-manifest-stig
 ## Verification
 
 After any code change, run:
+- `npm test` (rule and parsing tests)
 - `npm run build` (compile)
 - `npm start` (launch)
 Check app at http://localhost:3000

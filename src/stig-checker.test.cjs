@@ -41,3 +41,30 @@ test('summarizes severity counts for compliance reporting', async () => {
   assert.equal(summary.catII, 1);
   assert.equal(summary.compliant, false);
 });
+
+test('does not treat empty or malformed XML as compliant', async () => {
+  const { analyzeManifest } = await import('./stig-checker.js');
+
+  const empty = analyzeManifest('');
+  const malformed = analyzeManifest('<manifest><application></manifest>');
+
+  assert.equal(empty.status, 'empty');
+  assert.equal(malformed.status, 'invalid');
+  assert.notEqual(empty.status, 'compliant');
+  assert.notEqual(malformed.status, 'compliant');
+});
+
+test('marks permission findings for review instead of objective failure', async () => {
+  const { analyzeManifest } = await import('./stig-checker.js');
+  const analysis = analyzeManifest(`
+    <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+      <uses-permission android:name="android.permission.CAMERA" />
+      <application android:debuggable="false" />
+    </manifest>
+  `);
+
+  assert.equal(analysis.status, 'review');
+  assert.equal(analysis.summary.failures, 0);
+  assert.equal(analysis.summary.reviews, 1);
+  assert.equal(analysis.issues[0].status, 'review');
+});

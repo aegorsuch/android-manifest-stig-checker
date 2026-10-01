@@ -1,13 +1,14 @@
 ﻿import React, { useState } from 'react';
-import { checkSTIG, getComplianceSummary } from './stig-checker';
+import { analyzeManifest, getComplianceSummary } from './stig-checker';
 
 export default function App() {
   const [manifest, setManifest] = useState('');
-  const [issues, setIssues] = useState([]);
+  const [analysis, setAnalysis] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
   const [feedbackSent, setFeedbackSent] = useState(false);
 
-  const summary = getComplianceSummary(issues);
+  const issues = analysis?.issues || [];
+  const summary = analysis?.summary || getComplianceSummary([]);
 
   const compliantSample = `<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -37,11 +38,17 @@ export default function App() {
 </manifest>`;
 
   const handleCheck = () => {
-    setIssues(checkSTIG(manifest));
+    setAnalysis(analyzeManifest(manifest));
   };
 
-  const handleLoadCompliant = () => setManifest(compliantSample);
-  const handleLoadNoncompliant = () => setManifest(noncompliantSample);
+  const handleLoadCompliant = () => {
+    setManifest(compliantSample);
+    setAnalysis(null);
+  };
+  const handleLoadNoncompliant = () => {
+    setManifest(noncompliantSample);
+    setAnalysis(null);
+  };
 
   return (
     <div
@@ -149,6 +156,28 @@ export default function App() {
       <div style={{ marginTop: 24 }} aria-live="polite" aria-label="STIG Issues Table">
         <h2 tabIndex={0} aria-label="STIG Issues">STIG Issues</h2>
 
+        {!analysis && <p>Paste or upload a manifest, then check it to begin.</p>}
+        {analysis?.errors.map((error) => (
+          <div key={error} role="alert" style={{ background: '#4a1f1f', border: '1px solid #d66', padding: 12, marginBottom: 16 }}>
+            {error}
+          </div>
+        ))}
+        {analysis && !analysis.errors.length && (
+          <div
+            role="status"
+            style={{
+              background: analysis.status === 'compliant' ? '#173d2a' : analysis.status === 'review' ? '#4a3c18' : '#4a1f1f',
+              border: '1px solid currentColor',
+              padding: 12,
+              marginBottom: 16,
+            }}
+          >
+            {analysis.status === 'compliant' && 'Manifest passed the configured checks.'}
+            {analysis.status === 'review' && 'Manifest parsed successfully; some permissions require human review.'}
+            {analysis.status === 'failed' && 'Manifest contains objective STIG failures.'}
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
           <div style={{ background: '#2d2d2d', border: '1px solid #444', borderRadius: 8, padding: '8px 12px', minWidth: 120 }}>
             <div style={{ fontSize: 12, opacity: 0.8 }}>Total</div>
@@ -162,48 +191,57 @@ export default function App() {
             <div style={{ fontSize: 12, opacity: 0.8 }}>CAT II</div>
             <div style={{ fontSize: 22, fontWeight: 700 }}>{summary.catII}</div>
           </div>
+          <div style={{ background: '#4a3c18', border: '1px solid #9b7a30', borderRadius: 8, padding: '8px 12px', minWidth: 120 }}>
+            <div style={{ fontSize: 12, opacity: 0.8 }}>Review</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{summary.reviews}</div>
+          </div>
         </div>
 
-        {issues.length === 0 ? (
-          <p>No issues found.</p>
-        ) : (
+        {analysis?.status === 'compliant' ? (
+          <p>No findings were detected.</p>
+        ) : !analysis || analysis.errors.length ? null : (
           <React.Fragment>
-            <table style={{ width: '100%', background: '#333', color: '#fff', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th style={{ border: '1px solid #444', padding: 8 }}>Category</th>
-                  <th style={{ border: '1px solid #444', padding: 8 }}>STIG ID</th>
-                  <th style={{ border: '1px solid #444', padding: 8 }}>Issue</th>
-                  <th style={{ border: '1px solid #444', padding: 8 }}>Impact</th>
-                  <th style={{ border: '1px solid #444', padding: 8 }}>Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {issues.map((issue, idx) => {
-                  const rowStyle = issue.category === 'CAT I' ? { background: '#440000' } : issue.category === 'CAT II' ? { background: '#444000' } : {};
-                  const stigUrl = `https://www.stigviewer.com/stig/android_os/${issue.id.toLowerCase()}`;
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', background: '#333', color: '#fff', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Status</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Category</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>STIG ID</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Issue</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Impact</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Evidence</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {issues.map((issue, idx) => {
+                    const rowStyle = issue.status === 'fail' ? { background: '#440000' } : { background: '#444000' };
+                    const stigUrl = `https://www.stigviewer.com/stig/android_os/${issue.id.toLowerCase()}`;
 
-                  return (
-                    <tr key={`${issue.id}-${idx}`} style={rowStyle}>
-                      <td style={{ border: '1px solid #444', padding: 8 }}>{issue.category}</td>
-                      <td style={{ border: '1px solid #444', padding: 8 }}>{issue.id}</td>
-                      <td style={{ border: '1px solid #444', padding: 8 }}>{issue.label}</td>
-                      <td style={{ border: '1px solid #444', padding: 8 }}>{issue.description}</td>
-                      <td style={{ border: '1px solid #444', padding: 8 }}>
-                        <a href={stigUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#4eaaff', textDecoration: 'underline' }}>View STIG</a>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
+                    return (
+                      <tr key={`${issue.id}-${idx}`} style={rowStyle}>
+                        <td style={{ border: '1px solid #444', padding: 8 }}>{issue.status === 'review' ? 'Review' : 'Fail'}</td>
+                        <td style={{ border: '1px solid #444', padding: 8 }}>{issue.category}</td>
+                        <td style={{ border: '1px solid #444', padding: 8 }}>{issue.id}</td>
+                        <td style={{ border: '1px solid #444', padding: 8 }}>{issue.label}</td>
+                        <td style={{ border: '1px solid #444', padding: 8 }}>{issue.description}</td>
+                        <td style={{ border: '1px solid #444', padding: 8, fontFamily: 'monospace' }}>{issue.evidence}</td>
+                        <td style={{ border: '1px solid #444', padding: 8 }}>
+                          <a href={stigUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#4eaaff', textDecoration: 'underline' }}>View STIG</a>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
               <button
                 onClick={() => {
                   const csv = [
-                    ['Category', 'STIG ID', 'Issue', 'Impact'],
-                    ...issues.map((item) => [item.category, item.id, item.label, item.description]),
+                    ['Status', 'Category', 'STIG ID', 'Issue', 'Impact', 'Evidence'],
+                    ...issues.map((item) => [item.status, item.category, item.id, item.label, item.description, item.evidence]),
                   ]
                     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
                     .join('\n');
