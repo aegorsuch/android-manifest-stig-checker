@@ -5,7 +5,6 @@ export default function App() {
   const [manifest, setManifest] = useState('');
   const [analysis, setAnalysis] = useState(null);
   const [darkMode, setDarkMode] = useState(true);
-  const [feedbackSent, setFeedbackSent] = useState(false);
 
   const issues = analysis?.issues || [];
   const summary = analysis?.summary || getComplianceSummary([]);
@@ -268,38 +267,14 @@ export default function App() {
 
       <div style={{ marginTop: 40, background: '#282828', padding: 24, borderRadius: 8 }} aria-label="Feedback & Suggestions">
         <h2 tabIndex={0} aria-label="Feedback & Suggestions">Feedback & Suggestions</h2>
-        <form
-          action="https://github.com/aegorsuch/Android-Manifest-STIG-Checker/issues"
+        <a
+          href="https://github.com/aegorsuch/Android-Manifest-STIG-Checker/issues"
           target="_blank"
-          style={{ marginBottom: 16 }}
-          aria-label="Feedback Form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            setFeedbackSent(true);
-            setTimeout(() => setFeedbackSent(false), 4000);
-          }}
+          rel="noopener noreferrer"
+          style={{ color: '#4eaaff', textDecoration: 'underline' }}
         >
-          <label htmlFor="feedback" style={{ display: 'block', marginBottom: 8 }}>
-            Suggest a new rule or report an issue:
-          </label>
-          <textarea
-            id="feedback"
-            name="feedback"
-            rows={4}
-            style={{ width: '100%', fontFamily: 'monospace', fontSize: 16, marginBottom: 12 }}
-            placeholder="Describe your suggestion or issue..."
-            aria-label="Feedback Input"
-          />
-          <button type="submit" style={{ padding: '8px 24px', fontSize: 16 }} aria-label="Submit Feedback">
-            Submit Feedback
-          </button>
-        </form>
-
-        {feedbackSent && (
-          <div style={{ color: '#4eaaff', fontWeight: 'bold', marginBottom: 8 }} aria-live="polite">
-            Thank you for your feedback!
-          </div>
-        )}
+          Suggest a rule or report an issue on GitHub
+        </a>
       </div>
     </div>
   );

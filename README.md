@@ -14,12 +14,16 @@ Alex Gorsuch on chat.tak.gov or Signal.
 The TAK Forge repository is canonical; GitHub is a secondary repository.
 
 ## Usage
-1. Start the app with `npm start` to launch the local server (default port 3000).
+1. Start the app with `npm start` to launch the local server (Vite's default is port 5173).
 2. Paste your AndroidManifest.xml in the input box.
 3. Click "Check STIG" to see issues.
 4. Optionally, load sample manifests for quick testing.
 
 The checker does not treat an empty or malformed manifest as compliant. Permission findings such as camera, location, and internet access are reported for human review because their acceptability depends on the application's mission and authorization.
+
+## Rule Provenance and Limitations
+
+Each finding includes a STIG ID and links to its corresponding Android OS entry on [STIG Viewer](https://www.stigviewer.com/stig/android_os/). The rule definitions in this repository do not currently identify a pinned DISA STIG release or revision. Verify each rule against the applicable, current DISA publication before using results for an authorization or compliance decision. The checker is a static-manifest aid, not an authoritative compliance determination.
 
 ## Features
 - Manifest input
