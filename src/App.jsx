@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react';
-import { analyzeManifest, getComplianceSummary } from './stig-checker';
+import { analyzeManifest, formatEvidence, getComplianceSummary } from './stig-checker';
 
 export default function App() {
   const [manifest, setManifest] = useState('');
@@ -154,6 +154,7 @@ export default function App() {
 
       <div style={{ marginTop: 24 }} aria-live="polite" aria-label="STIG Issues Table">
         <h2 tabIndex={0} aria-label="STIG Issues">STIG Issues</h2>
+        <p role="note">Rule IDs and severities are not verified against a pinned DISA release. Confirm them against the applicable STIG before acting on findings.</p>
 
         {!analysis && <p>Paste or upload a manifest, then check it to begin.</p>}
         {analysis?.errors.map((error) => (
@@ -210,13 +211,11 @@ export default function App() {
                     <th style={{ border: '1px solid #444', padding: 8 }}>Issue</th>
                     <th style={{ border: '1px solid #444', padding: 8 }}>Impact</th>
                     <th style={{ border: '1px solid #444', padding: 8 }}>Evidence</th>
-                    <th style={{ border: '1px solid #444', padding: 8 }}>Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {issues.map((issue, idx) => {
                     const rowStyle = issue.status === 'fail' ? { background: '#440000' } : { background: '#444000' };
-                    const stigUrl = `https://www.stigviewer.com/stig/android_os/${issue.id.toLowerCase()}`;
 
                     return (
                       <tr key={`${issue.id}-${idx}`} style={rowStyle}>
@@ -225,9 +224,10 @@ export default function App() {
                         <td style={{ border: '1px solid #444', padding: 8 }}>{issue.id}</td>
                         <td style={{ border: '1px solid #444', padding: 8 }}>{issue.label}</td>
                         <td style={{ border: '1px solid #444', padding: 8 }}>{issue.description}</td>
-                        <td style={{ border: '1px solid #444', padding: 8, fontFamily: 'monospace' }}>{issue.evidence}</td>
-                        <td style={{ border: '1px solid #444', padding: 8 }}>
-                          <a href={stigUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#4eaaff', textDecoration: 'underline' }}>View STIG</a>
+                        <td style={{ border: '1px solid #444', padding: 8, fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                          {issue.evidence.map((evidence, evidenceIndex) => (
+                            <div key={`${issue.id}-evidence-${evidenceIndex}`}>{formatEvidence(evidence)}</div>
+                          ))}
                         </td>
                       </tr>
                     );
@@ -240,7 +240,7 @@ export default function App() {
                 onClick={() => {
                   const csv = [
                     ['Status', 'Category', 'STIG ID', 'Issue', 'Impact', 'Evidence'],
-                    ...issues.map((item) => [item.status, item.category, item.id, item.label, item.description, item.evidence]),
+                    ...issues.map((item) => [item.status, item.category, item.id, item.label, item.description, item.evidence.map(formatEvidence).join(' | ')]),
                   ]
                     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
                     .join('\n');

@@ -23,28 +23,28 @@ const RULES = [
     category: 'CAT I',
     label: 'debuggable="true"',
     description: 'The AndroidManifest.xml must not set android:debuggable="true" in production. This allows remote memory extraction and debugging.',
-    matcher: ({ application }) => normalizeBoolean(application['android:debuggable'] || application.debuggable),
+    matcher: (context) => applicationBooleanEvidence(context, 'debuggable'),
   },
   {
     id: 'V-242852',
     category: 'CAT II',
     label: 'allowBackup="true"',
     description: 'The AndroidManifest.xml must not set android:allowBackup="true". This permits local data extraction via ADB.',
-    matcher: ({ application }) => normalizeBoolean(application['android:allowBackup'] || application.allowBackup),
+    matcher: (context) => applicationBooleanEvidence(context, 'allowBackup'),
   },
   {
     id: 'V-242854',
     category: 'CAT I',
     label: 'usesCleartextTraffic',
     description: 'The AndroidManifest.xml must not allow cleartext traffic. All network traffic must be encrypted.',
-    matcher: ({ application }) => normalizeBoolean(application['android:usesCleartextTraffic'] || application.usesCleartextTraffic),
+    matcher: (context) => applicationBooleanEvidence(context, 'usesCleartextTraffic'),
   },
   {
     id: 'V-242855',
     category: 'CAT II',
     label: 'Exported Components',
     description: 'Exported components must be restricted. android:exported="true" can allow malicious apps to hijack intents.',
-    matcher: ({ exportedTags }) => exportedTags.some((tag) => normalizeBoolean(tag['android:exported'] || tag.exported)),
+    matcher: exportedComponentEvidence,
   },
   {
     id: 'V-242856',
@@ -52,7 +52,7 @@ const RULES = [
     label: 'WRITE_EXTERNAL_STORAGE',
     description: 'The app must not request WRITE_EXTERNAL_STORAGE permission unless absolutely necessary. This can expose sensitive data.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.WRITE_EXTERNAL_STORAGE'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.WRITE_EXTERNAL_STORAGE'),
   },
   {
     id: 'V-242862',
@@ -60,7 +60,7 @@ const RULES = [
     label: 'READ_EXTERNAL_STORAGE',
     description: 'The app must not request READ_EXTERNAL_STORAGE permission unless absolutely necessary. This can expose sensitive data.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.READ_EXTERNAL_STORAGE'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.READ_EXTERNAL_STORAGE'),
   },
   {
     id: 'V-242863',
@@ -68,7 +68,7 @@ const RULES = [
     label: 'INTERNET',
     description: 'The app must not request INTERNET permission unless required. Unrestricted internet access can expose sensitive data.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.INTERNET'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.INTERNET'),
   },
   {
     id: 'V-242864',
@@ -76,7 +76,7 @@ const RULES = [
     label: 'ACCESS_COARSE_LOCATION',
     description: 'The app must not request ACCESS_COARSE_LOCATION permission unless required. This can expose user location.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.ACCESS_COARSE_LOCATION'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.ACCESS_COARSE_LOCATION'),
   },
   {
     id: 'V-242865',
@@ -84,7 +84,7 @@ const RULES = [
     label: 'ACCESS_BACKGROUND_LOCATION',
     description: 'The app must not request ACCESS_BACKGROUND_LOCATION permission unless required. This can expose user location in the background.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.ACCESS_BACKGROUND_LOCATION'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.ACCESS_BACKGROUND_LOCATION'),
   },
   {
     id: 'V-242866',
@@ -92,7 +92,7 @@ const RULES = [
     label: 'SYSTEM_ALERT_WINDOW',
     description: 'The app must not request SYSTEM_ALERT_WINDOW permission unless required. This can allow overlay attacks.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.SYSTEM_ALERT_WINDOW'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.SYSTEM_ALERT_WINDOW'),
   },
   {
     id: 'V-242867',
@@ -100,7 +100,7 @@ const RULES = [
     label: 'PACKAGE_USAGE_STATS',
     description: 'The app must not request PACKAGE_USAGE_STATS permission unless required. This can expose app usage data.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.PACKAGE_USAGE_STATS'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.PACKAGE_USAGE_STATS'),
   },
   {
     id: 'V-242868',
@@ -108,7 +108,7 @@ const RULES = [
     label: 'BLUETOOTH',
     description: 'The app must not request BLUETOOTH permission unless required. This can expose device connectivity.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.BLUETOOTH'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.BLUETOOTH'),
   },
   {
     id: 'V-242869',
@@ -116,7 +116,7 @@ const RULES = [
     label: 'BLUETOOTH_ADMIN',
     description: 'The app must not request BLUETOOTH_ADMIN permission unless required. This can expose device connectivity.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.BLUETOOTH_ADMIN'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.BLUETOOTH_ADMIN'),
   },
   {
     id: 'V-242870',
@@ -124,7 +124,7 @@ const RULES = [
     label: 'NFC',
     description: 'The app must not request NFC permission unless required. This can expose device connectivity.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.NFC'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.NFC'),
   },
   {
     id: 'V-242857',
@@ -132,7 +132,7 @@ const RULES = [
     label: 'READ_PHONE_STATE',
     description: 'The app must not request READ_PHONE_STATE permission unless required. This can expose device information.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.READ_PHONE_STATE'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.READ_PHONE_STATE'),
   },
   {
     id: 'V-242858',
@@ -140,7 +140,7 @@ const RULES = [
     label: 'ACCESS_FINE_LOCATION',
     description: 'The app must not request ACCESS_FINE_LOCATION permission unless required. This can expose user location.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.ACCESS_FINE_LOCATION'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.ACCESS_FINE_LOCATION'),
   },
   {
     id: 'V-242859',
@@ -148,7 +148,7 @@ const RULES = [
     label: 'CAMERA',
     description: 'The app must not request CAMERA permission unless required. This can expose user privacy.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.CAMERA'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.CAMERA'),
   },
   {
     id: 'V-242860',
@@ -156,7 +156,7 @@ const RULES = [
     label: 'RECORD_AUDIO',
     description: 'The app must not request RECORD_AUDIO permission unless required. This can expose user privacy.',
     status: 'review',
-    matcher: ({ permissions }) => permissions.includes('android.permission.RECORD_AUDIO'),
+    matcher: (context) => permissionEvidence(context, 'android.permission.RECORD_AUDIO'),
   },
 ];
 
@@ -166,6 +166,47 @@ export function normalizeBoolean(value) {
   }
 
   return String(value).trim().toLowerCase() === 'true';
+}
+
+function findAttribute(attributes, name) {
+  const key = [`android:${name}`, name].find((candidate) => Object.hasOwn(attributes, candidate));
+  return key ? { key, value: String(attributes[key]) } : null;
+}
+
+function applicationBooleanEvidence({ application }, name) {
+  const attribute = findAttribute(application, name);
+  return attribute && normalizeBoolean(attribute.value)
+    ? [{ element: 'application', attribute: attribute.key, value: attribute.value }]
+    : [];
+}
+
+function exportedComponentEvidence({ exportedTags }) {
+  return exportedTags.flatMap(({ tagName, attributes }) => {
+    const exported = findAttribute(attributes, 'exported');
+    if (!exported || !normalizeBoolean(exported.value)) return [];
+
+    const componentName = findAttribute(attributes, 'name');
+    return [{
+      element: tagName,
+      component: componentName?.value,
+      nameAttribute: componentName?.key,
+      attribute: exported.key,
+      value: exported.value,
+    }];
+  });
+}
+
+function permissionEvidence({ permissions }, name) {
+  return permissions
+    .filter((permission) => permission.name === name)
+    .map(({ evidence }) => evidence);
+}
+
+export function formatEvidence(evidence) {
+  const component = evidence.component
+    ? ` ${evidence.nameAttribute}="${evidence.component}"`
+    : '';
+  return `<${evidence.element}${component} ${evidence.attribute}="${evidence.value}">`;
 }
 
 export function parseXmlAttributes(attrString) {
@@ -224,11 +265,20 @@ export function collectManifestData(xml) {
         const attributes = node[':@'] || {};
         if (name === 'application') applicationTags.push(attributes);
         if (['activity', 'service', 'receiver', 'provider'].includes(name)) {
-          exportedTags.push({ name, ...attributes });
+          exportedTags.push({ tagName: name, attributes });
         }
         if (name === 'uses-permission') {
-          const permission = attributes['android:name'] || attributes.name;
-          if (permission) permissions.push(permission.trim());
+          const permission = findAttribute(attributes, 'name');
+          if (permission) {
+            permissions.push({
+              name: permission.value.trim(),
+              evidence: {
+                element: name,
+                attribute: permission.key,
+                value: permission.value.trim(),
+              },
+            });
+          }
         }
 
         visit(children);
@@ -284,29 +334,21 @@ export function analyzeManifest(manifest) {
 
   const { application, exportedTags, permissions } = data;
   const issues = [];
-  const seen = new Set();
-
-  const pushIssue = (rule) => {
-    const key = rule.id;
-    if (seen.has(key)) {
-      return;
-    }
-
-    seen.add(key);
+  const pushIssue = (rule, evidence) => {
     issues.push({
       id: rule.id,
       category: rule.category,
       label: rule.label,
       description: rule.description,
       status: rule.status || 'fail',
-      evidence: rule.label,
+      evidence,
     });
   };
 
   RULES.forEach((rule) => {
-    const shouldFlag = rule.matcher({ application, exportedTags, permissions });
-    if (shouldFlag) {
-      pushIssue(rule);
+    const evidence = rule.matcher({ application, exportedTags, permissions });
+    if (evidence.length) {
+      pushIssue(rule, evidence);
     }
   });
 

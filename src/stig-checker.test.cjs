@@ -68,3 +68,30 @@ test('marks permission findings for review instead of objective failure', async 
   assert.equal(analysis.summary.reviews, 1);
   assert.equal(analysis.issues[0].status, 'review');
 });
+
+test('includes exact XML evidence for each matching attribute and permission', async () => {
+  const { analyzeManifest, formatEvidence } = await import('./stig-checker.js');
+  const analysis = analyzeManifest(`
+    <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+      <application android:debuggable="true">
+        <activity android:name=".MainActivity" android:exported="true" />
+        <receiver android:name=".BootReceiver" android:exported="true" />
+      </application>
+      <uses-permission android:name="android.permission.CAMERA" />
+      <uses-permission android:name="android.permission.CAMERA" />
+    </manifest>
+  `);
+  const debugFinding = analysis.issues.find((issue) => issue.id === 'V-242851');
+  const exportedFinding = analysis.issues.find((issue) => issue.id === 'V-242855');
+  const cameraFinding = analysis.issues.find((issue) => issue.id === 'V-242859');
+
+  assert.equal(formatEvidence(debugFinding.evidence[0]), '<application android:debuggable="true">');
+  assert.deepEqual(exportedFinding.evidence.map(formatEvidence), [
+    '<activity android:name=".MainActivity" android:exported="true">',
+    '<receiver android:name=".BootReceiver" android:exported="true">',
+  ]);
+  assert.deepEqual(cameraFinding.evidence.map(formatEvidence), [
+    '<uses-permission android:name="android.permission.CAMERA">',
+    '<uses-permission android:name="android.permission.CAMERA">',
+  ]);
+});

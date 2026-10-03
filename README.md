@@ -1,6 +1,6 @@
 # Android Manifest STIG Checker
 
-Paste your AndroidManifest.xml and get informed of real DISA Android STIG issues.
+Scan your AndroidManifest.xml for configured Android STIG checks.
 
 ## Project Information
 
@@ -23,11 +23,11 @@ The checker does not treat an empty or malformed manifest as compliant. Permissi
 
 ## Rule Provenance and Limitations
 
-Each finding includes a STIG ID and links to its corresponding Android OS entry on [STIG Viewer](https://www.stigviewer.com/stig/android_os/). The rule definitions in this repository do not currently identify a pinned DISA STIG release or revision. Verify each rule against the applicable, current DISA publication before using results for an authorization or compliance decision. The checker is a static-manifest aid, not an authoritative compliance determination.
+Findings include the XML element and attribute values that triggered each configured check. Rule IDs, categories, and descriptions in this repository have not been verified against a pinned DISA STIG release or revision, and their current deep links are unavailable. Verify each mapping against the applicable DISA publication before using results for an authorization or compliance decision. The checker is a static-manifest aid, not an authoritative compliance determination.
 
 ## Features
 - Manifest input
-- Real DISA Android STIG checks (permissions, debuggable, backup, cleartext traffic, exported components, and more)
+- Configured Android manifest checks (permissions, debuggable, backup, cleartext traffic, exported components, and more)
 - Issue reporting
 - Dark mode UI
 - Sample manifest loader
