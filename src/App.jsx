@@ -62,7 +62,7 @@ export default function App() {
         transition: 'background 0.2s, color 0.2s',
       }}
       role="main"
-      aria-label="Android Manifest STIG Checker Main Content"
+      aria-label="Android Manifest Checks Main Content"
     >
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
         <button
@@ -82,9 +82,9 @@ export default function App() {
         </button>
       </div>
 
-      <h1 tabIndex={0} aria-label="Android Manifest STIG Checker" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <h1 tabIndex={0} aria-label="Android Manifest Checks" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <span role="img" aria-label="Shield" style={{ fontSize: 32 }}>🛡️</span>
-        Android Manifest STIG Checker
+        Android Manifest Checks
       </h1>
       <p style={{ fontSize: 14, opacity: 0.85, marginTop: -12, marginBottom: 20 }}>
         Release (source commit): <code>{__SOURCE_COMMIT__}</code>
@@ -114,8 +114,8 @@ export default function App() {
       </div>
 
       <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-        <button onClick={handleCheck} style={{ padding: '8px 24px', fontSize: 16, flex: '1 1 180px', minWidth: 120 }} title="Check your manifest for STIG compliance">
-          <span role="img" aria-label="Check">✅</span> Check STIG Compliance
+        <button onClick={handleCheck} style={{ padding: '8px 24px', fontSize: 16, flex: '1 1 180px', minWidth: 120 }} title="Run the configured checks against your manifest">
+          <span role="img" aria-label="Check">✅</span> Run Manifest Checks
         </button>
         <button onClick={handleLoadNoncompliant} style={{ padding: '8px 24px', fontSize: 16, flex: '1 1 180px', minWidth: 120 }} title="Load a sample manifest with common STIG violations">
           <span role="img" aria-label="Warning">⚠️</span> Load Noncompliant Sample
@@ -152,8 +152,8 @@ export default function App() {
         `}
       </style>
 
-      <div style={{ marginTop: 24 }} aria-live="polite" aria-label="STIG Issues Table">
-        <h2 tabIndex={0} aria-label="STIG Issues">STIG Issues</h2>
+      <div style={{ marginTop: 24 }} aria-live="polite" aria-label="Manifest Check Results">
+        <h2 tabIndex={0} aria-label="Manifest Check Results">Manifest Check Results</h2>
         <p role="note">Rule IDs and severities are not verified against a pinned DISA release. Confirm them against the applicable STIG before acting on findings.</p>
 
         {!analysis && <p>Paste or upload a manifest, then check it to begin.</p>}
@@ -172,9 +172,9 @@ export default function App() {
               marginBottom: 16,
             }}
           >
-            {analysis.status === 'compliant' && 'Manifest passed the configured checks.'}
+            {analysis.status === 'compliant' && 'No configured check findings were detected.'}
             {analysis.status === 'review' && 'Manifest parsed successfully; some permissions require human review.'}
-            {analysis.status === 'failed' && 'Manifest contains objective STIG failures.'}
+            {analysis.status === 'failed' && 'Manifest contains failed checks.'}
           </div>
         )}
 
@@ -184,12 +184,8 @@ export default function App() {
             <div style={{ fontSize: 22, fontWeight: 700 }}>{summary.total}</div>
           </div>
           <div style={{ background: '#3d1a1a', border: '1px solid #7a2a2a', borderRadius: 8, padding: '8px 12px', minWidth: 120 }}>
-            <div style={{ fontSize: 12, opacity: 0.8 }}>CAT I</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{summary.catI}</div>
-          </div>
-          <div style={{ background: '#3d3a1a', border: '1px solid #7a6a2a', borderRadius: 8, padding: '8px 12px', minWidth: 120 }}>
-            <div style={{ fontSize: 12, opacity: 0.8 }}>CAT II</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{summary.catII}</div>
+            <div style={{ fontSize: 12, opacity: 0.8 }}>Failed</div>
+            <div style={{ fontSize: 22, fontWeight: 700 }}>{summary.failures}</div>
           </div>
           <div style={{ background: '#4a3c18', border: '1px solid #9b7a30', borderRadius: 8, padding: '8px 12px', minWidth: 120 }}>
             <div style={{ fontSize: 12, opacity: 0.8 }}>Review</div>
@@ -206,8 +202,8 @@ export default function App() {
                 <thead>
                   <tr>
                     <th style={{ border: '1px solid #444', padding: 8 }}>Status</th>
-                    <th style={{ border: '1px solid #444', padding: 8 }}>Category</th>
-                    <th style={{ border: '1px solid #444', padding: 8 }}>STIG ID</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Type</th>
+                    <th style={{ border: '1px solid #444', padding: 8 }}>Check ID</th>
                     <th style={{ border: '1px solid #444', padding: 8 }}>Issue</th>
                     <th style={{ border: '1px solid #444', padding: 8 }}>Impact</th>
                     <th style={{ border: '1px solid #444', padding: 8 }}>Evidence</th>
@@ -239,7 +235,7 @@ export default function App() {
               <button
                 onClick={() => {
                   const csv = [
-                    ['Status', 'Category', 'STIG ID', 'Issue', 'Impact', 'Evidence'],
+                    ['Status', 'Type', 'Check ID', 'Issue', 'Impact', 'Evidence'],
                     ...issues.map((item) => [item.status, item.category, item.id, item.label, item.description, item.evidence.map(formatEvidence).join(' | ')]),
                   ]
                     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))

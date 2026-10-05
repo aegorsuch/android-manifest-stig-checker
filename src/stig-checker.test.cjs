@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-test('detects common STIG issues from real XML structure', async () => {
+test('detects configured checks from Android manifest XML', async () => {
   const { checkSTIG } = await import('./stig-checker.js');
   const manifest = `
     <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.test">
@@ -19,26 +19,28 @@ test('detects common STIG issues from real XML structure', async () => {
 
   const issues = checkSTIG(manifest);
 
-  assert.ok(issues.some((issue) => issue.id === 'V-242851'));
-  assert.ok(issues.some((issue) => issue.id === 'V-242852'));
-  assert.ok(issues.some((issue) => issue.id === 'V-242854'));
-  assert.ok(issues.some((issue) => issue.id === 'V-242855'));
-  assert.ok(issues.some((issue) => issue.id === 'V-242857'));
+  assert.ok(issues.some((issue) => issue.id === 'manifest-debuggable'));
+  assert.ok(issues.some((issue) => issue.id === 'manifest-backup-enabled'));
+  assert.ok(issues.some((issue) => issue.id === 'manifest-cleartext-traffic'));
+  assert.ok(issues.some((issue) => issue.id === 'component-exported'));
+  assert.ok(issues.some((issue) => issue.id === 'permission-read-phone-state'));
+  assert.ok(issues.every((issue) => !issue.id.startsWith('V-')));
 });
 
-test('summarizes severity counts for compliance reporting', async () => {
+test('summarizes failed and review check counts', async () => {
   const { getComplianceSummary } = await import('./stig-checker.js');
   const issues = [
-    { id: 'V-242851', category: 'CAT I' },
-    { id: 'V-242852', category: 'CAT II' },
-    { id: 'V-242854', category: 'CAT I' },
+    { id: 'manifest-debuggable', category: 'Manifest', status: 'fail' },
+    { id: 'manifest-backup-enabled', category: 'Manifest', status: 'review' },
+    { id: 'permission-camera', category: 'Permission', status: 'review' },
   ];
 
   const summary = getComplianceSummary(issues);
 
   assert.equal(summary.total, 3);
-  assert.equal(summary.catI, 2);
-  assert.equal(summary.catII, 1);
+  assert.equal(summary.failures, 1);
+  assert.equal(summary.reviews, 2);
+  assert.equal(summary.catI, undefined);
   assert.equal(summary.compliant, false);
 });
 
@@ -81,9 +83,9 @@ test('includes exact XML evidence for each matching attribute and permission', a
       <uses-permission android:name="android.permission.CAMERA" />
     </manifest>
   `);
-  const debugFinding = analysis.issues.find((issue) => issue.id === 'V-242851');
-  const exportedFinding = analysis.issues.find((issue) => issue.id === 'V-242855');
-  const cameraFinding = analysis.issues.find((issue) => issue.id === 'V-242859');
+  const debugFinding = analysis.issues.find((issue) => issue.id === 'manifest-debuggable');
+  const exportedFinding = analysis.issues.find((issue) => issue.id === 'component-exported');
+  const cameraFinding = analysis.issues.find((issue) => issue.id === 'permission-camera');
 
   assert.equal(formatEvidence(debugFinding.evidence[0]), '<application android:debuggable="true">');
   assert.deepEqual(exportedFinding.evidence.map(formatEvidence), [

@@ -1,4 +1,4 @@
-# Android Manifest STIG Checker
+# Android Manifest Checks
 
 Scan your AndroidManifest.xml for configured Android STIG checks.
 
@@ -16,18 +16,18 @@ The TAK Forge repository is canonical; GitHub is a secondary repository.
 ## Usage
 1. Start the app with `npm start` to launch the local server (Vite's default is port 5173).
 2. Paste your AndroidManifest.xml in the input box.
-3. Click "Check STIG" to see issues.
+3. Click "Run Manifest Checks" to review the results.
 4. Optionally, load sample manifests for quick testing.
 
 The checker does not treat an empty or malformed manifest as compliant. Permission findings such as camera, location, and internet access are reported for human review because their acceptability depends on the application's mission and authorization.
 
 ## Rule Provenance and Limitations
 
-Findings include the XML element and attribute values that triggered each configured check. Rule IDs, categories, and descriptions in this repository have not been verified against a pinned DISA STIG release or revision, and their current deep links are unavailable. Verify each mapping against the applicable DISA publication before using results for an authorization or compliance decision. The checker is a static-manifest aid, not an authoritative compliance determination.
+Findings include the XML element and attribute values that triggered each configured check. The former V-IDs and CAT levels were not verified as Android STIG mappings and have been removed. Checks currently use local identifiers and are not mapped to a pinned DISA STIG release or revision. Verify each check against the applicable DISA publication before using results for an authorization or compliance decision. The checker is a static-manifest aid, not an authoritative compliance determination.
 
 ## Features
 - Manifest input
-- Configured Android manifest checks (permissions, debuggable, backup, cleartext traffic, exported components, and more)
+- Unmapped Android manifest checks (permissions, debuggable, backup, cleartext traffic, exported components, and more)
 - Issue reporting
 - Dark mode UI
 - Sample manifest loader
@@ -60,7 +60,7 @@ After any code change, run:
 - `npm test` (rule and parsing tests)
 - `npm run build` (compile)
 - `npm start` (launch)
-Check app at http://localhost:3000
+Check app at http://localhost:5173
 Lint and format code with recommended extensions.
 
 ## To Do
