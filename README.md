@@ -39,8 +39,8 @@ Findings include the XML element and attribute values that triggered each config
 
 To deploy as a GitHub Pages site:
 1. Commit source changes, then build the static site with `npm run build`.
-2. Commit the generated files in the `docs` folder and push to GitHub `develop`.
-3. In your GitHub repo settings, set GitHub Pages source to the `develop` branch, `/docs` folder.
+2. Commit the generated files in the `docs` folder and push to GitHub `main`.
+3. In your GitHub repo settings, set GitHub Pages source to the `main` branch, `/docs` folder.
 4. Ensure a `.nojekyll` file exists in the `docs` folder.
 
 The page displays the short source commit hash used for the build as its release version.
