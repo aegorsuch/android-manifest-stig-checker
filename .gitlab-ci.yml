@@ -1,0 +1,33 @@
+stages:
+  - validate
+  - publish
+
+default:
+  image: node:22.23.2-bookworm
+
+validate_web:
+  stage: validate
+  script:
+    - npm ci --no-audit --no-fund
+    - npm test
+    - node --test scripts/release.test.mjs
+    - npm run build -- --outDir dist
+    - apt-get update -qq && apt-get install -y --no-install-recommends python3
+    - node scripts/release.mjs package
+  artifacts:
+    name: "validated-web-$CI_COMMIT_SHA"
+    paths:
+      - release/
+    expire_in: 30 days
+
+publish_web:
+  stage: publish
+  needs:
+    - job: validate_web
+      artifacts: true
+  resource_group: canonical-web-publisher
+  rules:
+    - if: '$CI_PROJECT_URL == "https://git.tak.gov/aegorsuch/android-manifest-stig-checker" && $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_REF_PROTECTED == "true"'
+    - when: never
+  script:
+    - node scripts/release.mjs publish
