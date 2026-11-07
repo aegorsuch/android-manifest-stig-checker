@@ -131,7 +131,12 @@ The checker does not treat an empty or malformed manifest as compliant. Permissi
 
 ## License
 
-MIT License. Copyright (c) 2026 Alex Gorsuch. See [LICENSE](LICENSE) for the full terms.
+Copyright (c) 2026 Alex Gorsuch. This version is licensed under the GNU
+General Public License version 3 only. See [LICENSE](LICENSE) for the full
+terms.
+
+Earlier versions released under the MIT License remain available under their
+original MIT terms. Third-party dependencies retain their own licenses.
 
 ### Rights
 Unlimited Rights granted to TAK Product Center.
